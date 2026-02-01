@@ -1,0 +1,12 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="400" fill="#0891b2"/>
+<rect x="100" y="80" width="200" height="240" rx="20" fill="white"/>
+<rect x="140" y="120" width="120" height="100" rx="10" fill="#0891b2"/>
+<path d="M160 140 L240 140 Q240 160 220 160 L180 160 Q160 160 160 140" fill="white"/>
+<circle cx="180" cy="180" r="8" fill="white"/>
+<circle cx="200" cy="180" r="8" fill="white"/>
+<circle cx="220" cy="180" r="8" fill="white"/>
+<text x="200" y="310" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Screen Wash</text>
+<text x="200" y="330" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14">Anti-Smear Formula</text>
+<text x="200" y="350" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12">Boult India</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="400" fill="#a855f7"/>
+<rect x="80" y="120" width="240" height="160" rx="20" fill="white"/>
+<path d="M100 140 Q200 120 300 140 Q200 160 100 140" fill="#a855f7"/>
+<path d="M100 180 Q200 160 300 180 Q200 200 100 180" fill="#a855f7"/>
+<path d="M100 220 Q200 200 300 220 Q200 240 100 220" fill="#a855f7"/>
+<path d="M100 260 Q200 240 300 260 Q200 280 100 260" fill="#a855f7"/>
+<text x="200" y="320" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Microfiber Cloth</text>
+<text x="200" y="340" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14">340 GSM Premium</text>
+<text x="200" y="360" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12">Boult India</text>
+</svg>
