@@ -25,9 +25,12 @@ function AdminDashboard() {
         <div className="p-4 border-b border-blue-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
-              src="https://boultindia.com/wp-content/uploads/2025/09/cropped-Boult-Logo-white-background-scaled-1-1536x797.png" 
+              src="/logo1.png" 
               alt="Boult Logo"
               className="h-8 w-auto object-contain bg-white rounded px-1"
+              onError={(e: any) => {
+                e.target.src = "/logo2.png";
+              }}
             />
             {sidebarOpen && <h1 className="text-xl font-heading font-bold">Admin</h1>}
           </div>
@@ -92,9 +95,12 @@ function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img 
-                src="https://boultindia.com/wp-content/uploads/2025/09/cropped-Boult-Logo-white-background-scaled-1-1536x797.png" 
+                src="/logo1.png" 
                 alt="Boult Logo"
                 className="h-10 w-auto object-contain"
+                onError={(e: any) => {
+                  e.target.src = "/logo2.png";
+                }}
               />
               <div>
                 <h2 className="text-2xl font-heading font-bold text-gray-800">Boult India</h2>

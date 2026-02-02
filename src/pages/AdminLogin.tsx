@@ -40,9 +40,12 @@ export default function AdminLogin() {
             <div className="flex justify-center mb-6">
               <div className="relative admin-login-logo">
                 <img 
-                  src="https://boultindia.com/wp-content/uploads/2025/09/cropped-Boult-Logo-white-background-scaled-1-1536x797.png" 
+                  src="/logo1.png" 
                   alt="Boult Logo"
                   className="h-16 w-auto object-contain bg-white rounded-xl px-4 py-2 shadow-lg"
+                  onError={(e: any) => {
+                    e.target.src = "/logo2.png";
+                  }}
                 />
                 <div className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1">
                   <Shield size={16} className="text-white" />
