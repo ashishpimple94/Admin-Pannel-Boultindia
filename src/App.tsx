@@ -1,17 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import { apiService } from './services/api';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
+import BackendWakeup from './components/BackendWakeup';
 import './App.css';
 
 function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showWakeup, setShowWakeup] = useState(false);
+  const [backendReady, setBackendReady] = useState(false);
   const { user, logout } = useAdminAuth();
+
+  useEffect(() => {
+    checkBackendHealth();
+  }, []);
+
+  const checkBackendHealth = async () => {
+    const isHealthy = await apiService.checkHealth();
+    
+    if (!isHealthy) {
+      setShowWakeup(true);
+      // Try to wake up the backend
+      await apiService.wakeUpBackend();
+      
+      // Keep checking until backend is ready
+      const checkInterval = setInterval(async () => {
+        const healthy = await apiService.checkHealth();
+        if (healthy) {
+          setBackendReady(true);
+          clearInterval(checkInterval);
+        }
+      }, 3000);
+
+      // Auto-hide after 60 seconds regardless
+      setTimeout(() => {
+        setShowWakeup(false);
+        setBackendReady(true);
+        clearInterval(checkInterval);
+      }, 60000);
+    } else {
+      setBackendReady(true);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -128,6 +164,12 @@ function AdminDashboard() {
           </Routes>
         </main>
       </div>
+
+      {/* Backend Wakeup Modal */}
+      <BackendWakeup 
+        isVisible={showWakeup} 
+        onComplete={() => setShowWakeup(false)} 
+      />
     </div>
   );
 }
