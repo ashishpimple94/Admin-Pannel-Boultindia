@@ -42,7 +42,10 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
+      console.log('🔍 Orders Page: Fetching orders...');
       const newOrders = await apiService.getOrders();
+      console.log('🔍 Orders Page: Received orders:', newOrders);
+      console.log('🔍 Orders Page: Orders count:', newOrders.length);
       
       // Check for new orders
       if (previousOrderCount > 0 && newOrders.length > previousOrderCount) {
@@ -62,8 +65,9 @@ export default function Orders() {
       
       setOrders(newOrders);
       setPreviousOrderCount(newOrders.length);
+      console.log('🔍 Orders Page: State updated with', newOrders.length, 'orders');
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('❌ Orders Page: Error fetching orders:', error);
     } finally {
       setLoading(false);
     }

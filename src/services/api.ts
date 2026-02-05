@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://boult-india-bakend-new.onrender.com';
 const MAX_RETRIES = 5; // Increased retries for Render
 const RETRY_DELAY = 2000; // Increased delay for cold starts
 
@@ -60,12 +60,16 @@ class ApiService {
 
   async getOrders(): Promise<any[]> {
     try {
+      console.log('🔍 Admin API: Fetching orders from', BACKEND_URL);
       const response = await this.retryRequest(() =>
         this.api.get('/api/orders')
       );
+      console.log('🔍 Admin API: Orders response:', response.data);
+      console.log('🔍 Admin API: Orders count:', response.data.orders?.length || 0);
       return response.data.orders || [];
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error('❌ Admin API: Failed to fetch orders:', error);
+      console.error('❌ Admin API: Error details:', error.response?.data || error.message);
       return [];
     }
   }
@@ -211,7 +215,7 @@ class ApiService {
   async checkHealth(): Promise<boolean> {
     try {
       const response = await axios.get(`${BACKEND_URL}/health`, {
-        timeout: 15000, // Longer timeout for health check
+        timeout: 45000, // Increased timeout for Render cold starts
       });
       return response.data.status?.includes('Backend is running') || false;
     } catch (error: any) {
@@ -226,15 +230,41 @@ class ApiService {
   async wakeUpBackend(): Promise<void> {
     console.log('🔄 Waking up backend service...');
     try {
-      // Make multiple concurrent requests to wake up faster
-      const wakeUpPromises = Array(3).fill(0).map(() => 
-        axios.get(`${BACKEND_URL}/health`, { timeout: 30000 })
+      // Make multiple concurrent requests to wake up faster with longer timeout
+      const wakeUpPromises = Array(2).fill(0).map(() => 
+        axios.get(`${BACKEND_URL}/health`, { timeout: 60000 })
       );
       
       await Promise.race(wakeUpPromises);
       console.log('✅ Backend is awake!');
     } catch (error) {
       console.warn('⚠️ Backend wake-up attempt failed, but it might still be starting...');
+    }
+  }
+
+  async uploadImage(file: File): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+    try {
+      // For now, let's use a simple approach - just use the filename without actual upload
+      // In production, you'd want to use cloud storage like AWS S3, Cloudinary, etc.
+      
+      // Generate a simple image URL based on filename
+      const timestamp = Date.now();
+      const imageUrl = `/uploads/${timestamp}-${file.name}`;
+      
+      console.log('🖼️ Image upload simulated:', imageUrl);
+      
+      // TODO: In production, implement actual file upload to cloud storage
+      
+      return {
+        success: true,
+        imageUrl: imageUrl,
+      };
+    } catch (error: any) {
+      console.error('Failed to upload image:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to upload image',
+      };
     }
   }
 }

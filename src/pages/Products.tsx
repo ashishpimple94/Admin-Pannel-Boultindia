@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Upload } from 'lucide-react';
 import { apiService } from '../services/api';
+import { uploadToImgBB, EXISTING_PRODUCT_IMAGES } from '../services/imageUpload';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
@@ -36,6 +37,7 @@ export default function Products() {
   const [benefits, setBenefits] = useState<string[]>(['']);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [packs, setPacks] = useState<Array<{ name: string; price: string }>>([{ name: '', price: '' }]);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; productId: string }>({ show: false, productId: '' });
@@ -66,6 +68,28 @@ export default function Products() {
     }));
   };
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploadingImage(true);
+      setToast({ show: true, message: 'Uploading image...', type: 'info' });
+
+      const result = await uploadToImgBB(file);
+
+      if (result.success && result.url) {
+        setFormData(prev => ({ ...prev, image: result.url! }));
+        setImagePreview(result.url);
+        setToast({ show: true, message: 'Image uploaded successfully!', type: 'success' });
+      } else {
+        setToast({ show: true, message: result.error || 'Upload failed', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      setToast({ show: true, message: 'Failed to upload image', type: 'error' });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,6 +107,7 @@ export default function Products() {
       let result;
       const productData = {
         ...formData,
+        image: formData.image || '/placeholder-product.svg', // Use selected image or placeholder
         variants: validPacks,
         specifications: validSpecs,
         directions: validDirections,
@@ -366,43 +391,88 @@ export default function Products() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-            <div className="space-y-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImageFile(file);
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setImagePreview(reader.result as string);
-                      setFormData(prev => ({ ...prev, image: `/uploads/${file.name}` }));
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              />
-              <input
-                type="text"
-                name="image"
-                value={formData.image}
-                onChange={handleInputChange}
-                placeholder="Or enter image URL: /product-image.png"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              />
+            <div className="space-y-3">
+              {/* Option 1: Upload New Image */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-500 transition">
+                <label className="cursor-pointer block">
+                  <div className="flex flex-col items-center">
+                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600">Click to upload new image</span>
+                    <span className="text-xs text-gray-400 mt-1">PNG, JPG up to 32MB</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageUpload(file);
+                      }
+                    }}
+                    className="hidden"
+                    disabled={uploadingImage}
+                  />
+                </label>
+              </div>
+
+              {/* Option 2: Select Existing Image */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Or select existing image:</label>
+                <select
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setFormData(prev => ({ ...prev, image: e.target.value }));
+                      setImagePreview('');
+                    }
+                  }}
+                  value={formData.image && formData.image.startsWith('/') ? formData.image : ''}
+                  disabled={uploadingImage}
+                >
+                  <option value="">Select from existing images...</option>
+                  {EXISTING_PRODUCT_IMAGES.map((img) => (
+                    <option key={img.value} value={img.value}>
+                      {img.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Option 3: Manual URL Input */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Or enter image URL:</label>
+                <input
+                  type="text"
+                  name="image"
+                  value={formData.image}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/image.png"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  disabled={uploadingImage}
+                />
+              </div>
+
+              {/* Image Preview */}
               {(imagePreview || formData.image) && (
-                <div className="mt-2">
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-2">Preview:</p>
                   <img
                     src={imagePreview || formData.image}
                     alt="Preview"
-                    className="h-24 w-24 object-contain border rounded"
+                    className="h-32 w-32 object-contain border rounded mx-auto"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
+                      target.src = '/placeholder-product.svg';
                     }}
                   />
+                  <p className="text-xs text-gray-500 mt-2 break-all">{formData.image}</p>
+                </div>
+              )}
+
+              {uploadingImage && (
+                <div className="text-center py-2">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                  <p className="text-sm text-gray-600 mt-2">Uploading...</p>
                 </div>
               )}
             </div>
