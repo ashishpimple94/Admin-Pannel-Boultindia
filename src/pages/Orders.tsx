@@ -5,6 +5,7 @@ import Invoice from '../components/Invoice';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
+import CancellationNotification from '../components/CancellationNotification';
 
 interface Order {
   id: string;
@@ -20,12 +21,15 @@ interface Order {
   date: string;
   items: any[];
   paymentMethod?: string;
+  cancelReason?: string;
+  cancelledAt?: string;
 }
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
   const [newOrderAlert, setNewOrderAlert] = useState(false);
+  const [cancelledOrderAlert, setCancelledOrderAlert] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -33,6 +37,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; orderId: string }>({ show: false, orderId: '' });
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>({ show: false, message: '', type: 'info' });
+  const [previousOrders, setPreviousOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     fetchOrders();
@@ -65,6 +70,30 @@ export default function Orders() {
       
       setOrders(newOrders);
       setPreviousOrderCount(newOrders.length);
+      
+      // Check for cancelled orders
+      if (previousOrders.length > 0) {
+        const newlyCancelled = newOrders.filter((order: Order) => 
+          order.status === 'cancelled' && 
+          !previousOrders.find((prev: Order) => prev.id === order.id && prev.status === 'cancelled')
+        );
+        
+        if (newlyCancelled.length > 0) {
+          const cancelledOrder = newlyCancelled[0];
+          setCancelledOrderAlert(cancelledOrder.id);
+          setToast({
+            show: true,
+            message: `🚨 Order ${cancelledOrder.id} was cancelled by ${cancelledOrder.customer}`,
+            type: 'error'
+          });
+          
+          setTimeout(() => {
+            setCancelledOrderAlert(null);
+          }, 10000);
+        }
+      }
+      
+      setPreviousOrders(newOrders);
       console.log('🔍 Orders Page: State updated with', newOrders.length, 'orders');
     } catch (error) {
       console.error('❌ Orders Page: Error fetching orders:', error);
@@ -89,6 +118,7 @@ export default function Orders() {
       case 'processing': return <Package size={16} />;
       case 'shipped': return <Truck size={16} />;
       case 'delivered': return <CheckCircle size={16} />;
+      case 'cancelled': return <span className="text-red-600">✕</span>;
       default: return <Package size={16} />;
     }
   };
@@ -98,7 +128,8 @@ export default function Orders() {
       case 'delivered': return 'bg-green-100 text-green-800 border-green-300';
       case 'shipped': return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'processing': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'pending': return 'bg-red-100 text-red-800 border-red-300';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-300';
+      case 'pending': return 'bg-gray-100 text-gray-800 border-gray-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
@@ -205,6 +236,7 @@ export default function Orders() {
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
@@ -323,6 +355,27 @@ export default function Orders() {
               </div>
             )}
 
+            {/* Cancellation Info - Show if order is cancelled */}
+            {selectedOrder.status === 'cancelled' && (selectedOrder as any).cancelReason && (
+              <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                <p className="text-sm text-gray-600 font-semibold mb-2">Cancellation Details</p>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-xs text-gray-600">Reason:</span>
+                    <p className="font-semibold text-red-800">{(selectedOrder as any).cancelReason}</p>
+                  </div>
+                  {(selectedOrder as any).cancelledAt && (
+                    <div>
+                      <span className="text-xs text-gray-600">Cancelled On:</span>
+                      <p className="font-semibold text-gray-900">
+                        {new Date((selectedOrder as any).cancelledAt).toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Status Update */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <p className="text-sm text-gray-600 font-semibold mb-2">Update Status</p>
@@ -335,6 +388,7 @@ export default function Orders() {
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
                 <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
 
@@ -458,6 +512,15 @@ export default function Orders() {
         onConfirm={confirmDelete}
         onCancel={() => setDeleteConfirm({ show: false, orderId: '' })}
       />
+
+      {/* Cancellation Notification */}
+      {cancelledOrderAlert && (
+        <CancellationNotification
+          orderId={cancelledOrderAlert}
+          customerName={orders.find(o => o.id === cancelledOrderAlert)?.customer || 'Customer'}
+          onClose={() => setCancelledOrderAlert(null)}
+        />
+      )}
 
       {/* Toast Notification */}
       {toast.show && (

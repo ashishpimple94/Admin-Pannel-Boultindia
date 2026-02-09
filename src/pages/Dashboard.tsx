@@ -37,18 +37,12 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      // Check backend health first
-      const isHealthy = await apiService.checkHealth();
-      setBackendConnected(isHealthy);
-
-      if (!isHealthy) {
-        console.warn('Backend is not responding - might be sleeping on Render');
-        // Try to wake up the backend
-        await apiService.wakeUpBackend();
-        return; // Skip data fetch this time, let next interval try
-      }
-
+      console.log('📊 Dashboard: Fetching orders...');
       const allOrders = await apiService.getOrders();
+      console.log('📊 Dashboard: Received', allOrders.length, 'orders');
+      
+      // Backend is connected if we got data
+      setBackendConnected(true);
       
       // Check for new orders
       if (previousOrderCount > 0 && allOrders.length > previousOrderCount) {
@@ -71,6 +65,8 @@ export default function Dashboard() {
       const completedOrders = allOrders.filter((o: Order) => o.status === 'delivered').length;
       const uniqueCustomers = new Set(allOrders.map((o: Order) => o.email)).size;
 
+      console.log('📊 Dashboard Stats:', { totalRevenue, totalOrders, pendingOrders, completedOrders, uniqueCustomers });
+
       setStats({
         totalRevenue,
         totalOrders,
@@ -79,7 +75,7 @@ export default function Dashboard() {
         completedOrders,
       });
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('❌ Dashboard: Error fetching data:', error);
       setBackendConnected(false);
     } finally {
       setLoading(false);
@@ -112,26 +108,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Connection Status */}
-      <div className={`p-4 flex items-center gap-3 ${backendConnected ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-        {backendConnected ? (
-          <>
-            <Wifi className="text-green-600" size={20} />
-            <div>
-              <p className="text-green-800 font-body font-semibold">Backend Connected</p>
-              <p className="text-green-700 text-sm font-body">Last updated: {lastUpdate}</p>
-            </div>
-          </>
-        ) : (
-          <>
-            <WifiOff className="text-red-600" size={20} />
-            <div>
-              <p className="text-red-800 font-body font-semibold">Backend Sleeping</p>
-              <p className="text-red-700 text-sm font-body">Render service is waking up. Please wait 30-60 seconds...</p>
-            </div>
-          </>
-        )}
-      </div>
+      {/* Connection Status - Only show if disconnected */}
+      {!backendConnected && (
+        <div className="p-4 flex items-center gap-3 bg-yellow-50 border border-yellow-200">
+          <WifiOff className="text-yellow-600" size={20} />
+          <div>
+            <p className="text-yellow-800 font-body font-semibold">Connecting to Backend...</p>
+            <p className="text-yellow-700 text-sm font-body">Please wait, fetching data...</p>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition">

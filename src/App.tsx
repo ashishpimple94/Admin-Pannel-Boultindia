@@ -7,6 +7,7 @@ import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
+import Banners from './pages/Banners';
 import './App.css';
 
 function AdminDashboard() {
@@ -64,6 +65,13 @@ function AdminDashboard() {
           >
             <span className="text-xl">🛍️</span>
             {sidebarOpen && <span>Products</span>}
+          </Link>
+          <Link
+            to="/banners"
+            className="flex items-center gap-3 p-3 hover:bg-blue-700 transition font-body font-medium rounded-lg"
+          >
+            <span className="text-xl">🎨</span>
+            {sidebarOpen && <span>Banners</span>}
           </Link>
         </nav>
 
@@ -125,6 +133,7 @@ function AdminDashboard() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/banners" element={<Banners />} />
           </Routes>
         </main>
       </div>

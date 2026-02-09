@@ -11,10 +11,14 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  discount?: number;
   category: string;
   image: string;
+  images?: string[];
   featured: boolean;
   onSale: boolean;
+  variants?: Array<{ name: string; price: number }>;
 }
 
 export default function Products() {
@@ -27,12 +31,13 @@ export default function Products() {
     name: '',
     description: '',
     price: '',
+    originalPrice: '',
+    discount: '',
     category: 'polish',
     image: '',
     featured: false,
     onSale: false,
   });
-  const [specifications, setSpecifications] = useState<string[]>(['']);
   const [directions, setDirections] = useState<string[]>(['']);
   const [benefits, setBenefits] = useState<string[]>(['']);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -99,7 +104,6 @@ export default function Products() {
     }
 
     const validPacks = packs.filter(p => p.name && p.price);
-    const validSpecs = specifications.filter(s => s.trim());
     const validDirections = directions.filter(d => d.trim());
     const validBenefits = benefits.filter(b => b.trim());
 
@@ -109,7 +113,6 @@ export default function Products() {
         ...formData,
         image: formData.image || '/placeholder-product.svg', // Use selected image or placeholder
         variants: validPacks,
-        specifications: validSpecs,
         directions: validDirections,
         benefits: validBenefits
       };
@@ -159,13 +162,14 @@ export default function Products() {
       name: '',
       description: '',
       price: '',
+      originalPrice: '',
+      discount: '',
       category: 'polish',
       image: '',
       featured: false,
       onSale: false,
     });
     setPacks([{ name: '', price: '' }]);
-    setSpecifications(['']);
     setDirections(['']);
     setBenefits(['']);
     setImageFile(null);
@@ -243,41 +247,101 @@ export default function Products() {
           filteredProducts.map((product: any) => (
             <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
               {/* Image */}
-              <div className="h-48 bg-gray-100 rounded-t-lg overflow-hidden">
+              <div className="h-48 bg-gray-100 rounded-t-lg overflow-hidden relative">
                 <img
-                  src={product.image || '/placeholder-product.svg'}
+                  src={product.images?.[0] || product.image || '/placeholder-product.svg'}
                   alt={product.name}
                   className="w-full h-full object-contain p-4"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder-product.svg';
+                  }}
                 />
+                {/* Discount Badge on Image */}
+                {product.onSale && product.originalPrice && product.originalPrice > product.price && (() => {
+                  const discount = product.originalPrice - product.price;
+                  const discountPercent = Math.round((discount / product.originalPrice) * 100);
+                  return (
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                        ₹{discount} OFF
+                      </span>
+                      <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                        {discountPercent}% OFF
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Content */}
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-gray-900 line-clamp-2">{product.name}</h3>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap">
                     {product.featured && (
-                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
-                        Featured
+                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-semibold">
+                        ⭐ Featured
                       </span>
                     )}
-                    {product.onSale && (
-                      <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                        Sale
-                      </span>
-                    )}
+                    {product.onSale && product.originalPrice && product.originalPrice > product.price && (() => {
+                      const discountPercent = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                      return (
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-1 rounded font-bold shadow-sm">
+                          🔥 {discountPercent}% OFF
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
 
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xl font-bold text-blue-600">₹{product.price}</span>
-                  <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                    {product.category}
-                  </span>
+                {/* Price Section with Offer */}
+                <div className="mb-3">
+                  {product.onSale && product.originalPrice && product.originalPrice > product.price ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                        <span className="text-xl font-bold text-orange-600">₹{product.price}</span>
+                        {(() => {
+                          const discount = product.originalPrice - product.price;
+                          const discountPercent = Math.round((discount / product.originalPrice) * 100);
+                          
+                          // Show both rupee and percentage for better visibility
+                          return (
+                            <div className="flex items-center gap-1">
+                              <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                                ₹{discount} OFF
+                              </span>
+                              <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                                {discountPercent}% OFF
+                              </span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                          {product.category}
+                        </span>
+                        <span className="bg-orange-50 text-orange-700 text-xs px-2 py-1 rounded font-semibold border border-orange-200">
+                          🔥 Active Offer
+                        </span>
+                        <span className="bg-yellow-50 text-yellow-700 text-xs px-2 py-1 rounded font-semibold">
+                          💰 Save ₹{product.originalPrice - product.price}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold text-blue-600">₹{product.price}</span>
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                        {product.category}
+                      </span>
+                    </div>
+                  )}
                 </div>
-
                 {/* Variants */}
                 {product.variants && product.variants.length > 0 && (
                   <div className="mb-3">
@@ -301,6 +365,8 @@ export default function Products() {
                         name: product.name,
                         description: product.description,
                         price: product.price.toString(),
+                        originalPrice: product.originalPrice?.toString() || '',
+                        discount: product.discount?.toString() || '',
                         category: product.category,
                         image: product.image,
                         featured: product.featured,
@@ -362,7 +428,7 @@ export default function Products() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price (₹) *</label>
               <input
                 type="number"
                 name="price"
@@ -387,6 +453,97 @@ export default function Products() {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Offer Section */}
+          <div className="border-2 border-orange-200 rounded-lg p-4 bg-orange-50">
+            <div className="flex items-center gap-2 mb-3">
+              <input
+                type="checkbox"
+                name="onSale"
+                checked={formData.onSale}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+              />
+              <label className="text-sm font-medium text-gray-700">🔥 Product is on Sale/Offer</label>
+            </div>
+
+            {formData.onSale && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Original Price (₹) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="originalPrice"
+                      value={formData.originalPrice}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 1000"
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">MRP/Regular price</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Discount (%) <span className="text-gray-400">(Optional)</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="discount"
+                      value={formData.discount}
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        // Auto-calculate sale price from discount
+                        if (formData.originalPrice && e.target.value) {
+                          const discountPercent = Number(e.target.value);
+                          const original = Number(formData.originalPrice);
+                          const salePrice = original - (original * discountPercent / 100);
+                          setFormData(prev => ({ ...prev, price: Math.round(salePrice).toString(), discount: e.target.value }));
+                        }
+                      }}
+                      placeholder="e.g., 10"
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Auto-calculates sale price</p>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs font-medium text-blue-700 mb-2">💡 How it works:</p>
+                  <ul className="text-xs text-blue-600 space-y-1">
+                    <li>• Enter <strong>Original Price</strong> (MRP)</li>
+                    <li>• Enter <strong>Discount %</strong> OR manually set <strong>Sale Price</strong> above</li>
+                    <li>• Customers will see: <span className="line-through">₹1000</span> <strong>₹900</strong> <span className="bg-orange-500 text-white px-1 rounded">₹100 OFF</span></li>
+                  </ul>
+                </div>
+
+                {formData.originalPrice && formData.price && Number(formData.originalPrice) > Number(formData.price) && (
+                  <div className="mt-3 p-4 bg-white rounded-lg border-2 border-orange-400 shadow-sm">
+                    <p className="text-sm font-bold text-gray-700 mb-2">🎉 Offer Preview:</p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg text-gray-400 line-through">₹{formData.originalPrice}</span>
+                      <span className="text-2xl font-bold text-orange-600">₹{formData.price}</span>
+                      <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow">
+                        ₹{Number(formData.originalPrice) - Number(formData.price)} OFF
+                      </span>
+                      <span className="bg-green-500 text-white text-xs px-2 py-1 rounded">
+                        {Math.round(((Number(formData.originalPrice) - Number(formData.price)) / Number(formData.originalPrice)) * 100)}% OFF
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {formData.originalPrice && formData.price && Number(formData.originalPrice) <= Number(formData.price) && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-300 rounded-lg">
+                    <p className="text-sm text-red-600">⚠️ <strong>Warning:</strong> Sale Price must be less than Original Price!</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -475,46 +632,6 @@ export default function Products() {
                   <p className="text-sm text-gray-600 mt-2">Uploading...</p>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Specifications */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">Specifications</label>
-              <button
-                type="button"
-                onClick={() => setSpecifications([...specifications, ''])}
-                className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded hover:bg-green-200"
-              >
-                + Add Spec
-              </button>
-            </div>
-            <div className="space-y-2">
-              {specifications.map((spec, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g., Penetrates deep through rust"
-                    value={spec}
-                    onChange={(e) => {
-                      const newSpecs = [...specifications];
-                      newSpecs[idx] = e.target.value;
-                      setSpecifications(newSpecs);
-                    }}
-                    className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                  {specifications.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setSpecifications(specifications.filter((_, i) => i !== idx))}
-                      className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
 

@@ -267,6 +267,77 @@ class ApiService {
       };
     }
   }
+
+  // ============ BANNERS API ============
+
+  async getBanners(): Promise<any[]> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.api.get('/api/banners')
+      );
+      return response.data.banners || [];
+    } catch (error) {
+      console.error('Failed to fetch banners:', error);
+      return [];
+    }
+  }
+
+  async saveBanner(banner: any): Promise<ApiResponse<any>> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.api.post('/api/banners', banner)
+      );
+      return {
+        success: true,
+        data: response.data,
+        timestamp: response.data.timestamp,
+      };
+    } catch (error: any) {
+      console.error('Failed to save banner:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to save banner',
+      };
+    }
+  }
+
+  async updateBanner(banner: any): Promise<ApiResponse<any>> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.api.put('/api/banners', banner)
+      );
+      return {
+        success: true,
+        data: response.data,
+        timestamp: response.data.timestamp,
+      };
+    } catch (error: any) {
+      console.error('Failed to update banner:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to update banner',
+      };
+    }
+  }
+
+  async deleteBanner(bannerId: string): Promise<ApiResponse<any>> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.api.delete('/api/banners', { data: { id: bannerId } })
+      );
+      return {
+        success: true,
+        data: response.data,
+        timestamp: response.data.timestamp,
+      };
+    } catch (error: any) {
+      console.error('Failed to delete banner:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to delete banner',
+      };
+    }
+  }
 }
 
 export const apiService = new ApiService();
