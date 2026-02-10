@@ -460,11 +460,58 @@ export default function Orders() {
               </div>
             </div>
 
+            {/* Shipping Charges - Admin can add manually */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <label className="block text-sm text-gray-700 font-semibold mb-2">
+                  Shipping Charges (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={(selectedOrder as any).shippingCharges || 0}
+                  onChange={(e) => {
+                    const charges = parseFloat(e.target.value) || 0;
+                    setSelectedOrder({ ...selectedOrder, shippingCharges: charges } as any);
+                  }}
+                  onBlur={async () => {
+                    // Save shipping charges to backend
+                    try {
+                      await apiService.updateOrder(selectedOrder.id, {
+                        shippingCharges: (selectedOrder as any).shippingCharges || 0
+                      });
+                      fetchOrders();
+                      setToast({ show: true, message: 'Shipping charges updated!', type: 'success' });
+                    } catch (error) {
+                      setToast({ show: true, message: 'Failed to update shipping charges', type: 'error' });
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold text-lg"
+                  placeholder="Enter shipping charges"
+                />
+                <p className="text-xs text-gray-600 mt-2">
+                  💡 Based on customer address, add appropriate shipping charges
+                </p>
+              </div>
+            </div>
+
             {/* Order Amount */}
             <div className="border-t border-gray-200 pt-4">
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-gray-600 font-semibold">Total Amount</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">₹{selectedOrder.amount.toLocaleString('en-IN')}</p>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                  <span className="text-sm text-gray-600 font-semibold">Subtotal</span>
+                  <span className="text-lg font-bold text-gray-900">₹{selectedOrder.amount.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg">
+                  <span className="text-sm text-gray-600 font-semibold">Shipping Charges</span>
+                  <span className="text-lg font-bold text-orange-600">₹{((selectedOrder as any).shippingCharges || 0).toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border-2 border-blue-300">
+                  <span className="text-base text-gray-700 font-bold">Grand Total</span>
+                  <span className="text-3xl font-bold text-blue-600">
+                    ₹{(selectedOrder.amount + ((selectedOrder as any).shippingCharges || 0)).toLocaleString('en-IN')}
+                  </span>
+                </div>
               </div>
             </div>
 
