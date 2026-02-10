@@ -13,6 +13,7 @@ interface InvoiceProps {
     state: string;
     pincode: string;
     amount: number;
+    shippingCharges?: number;
     status: string;
     date: string;
     items: any[];
@@ -31,8 +32,10 @@ const LOGO_BASE64 = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9I
 
 const Invoice: React.FC<InvoiceProps> = ({ order, showPrintButton = true }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
+  const shippingCharges = order.shippingCharges || 0;
   const subtotal = order.amount / (1 + GST_RATE);
   const gstAmount = order.amount - subtotal;
+  const grandTotal = order.amount + shippingCharges;
 
   const handlePrint = () => {
     window.print();
@@ -427,10 +430,16 @@ const Invoice: React.FC<InvoiceProps> = ({ order, showPrintButton = true }) => {
                   <span className="text-gray-700 font-medium">GST (18%):</span>
                   <span className="text-blue-600 font-semibold">₹{gstAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                 </div>
+                {shippingCharges > 0 && (
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-700 font-medium">Shipping Charges:</span>
+                    <span className="text-orange-600 font-semibold">₹{shippingCharges.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                  </div>
+                )}
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-md">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-lg">Total Amount:</span>
-                    <span className="font-bold text-2xl">₹{order.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                    <span className="font-bold text-2xl">₹{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
