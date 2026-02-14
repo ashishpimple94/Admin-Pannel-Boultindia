@@ -553,25 +553,61 @@ export default function Orders() {
                   <label className="block text-sm text-gray-700 font-semibold mb-2">
                     ⏰ Processing Date & Time
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={(selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => {
-                      setSelectedOrder({ ...selectedOrder, processingDateTime: e.target.value } as any);
-                    }}
-                    onBlur={async () => {
-                      try {
-                        await apiService.updateOrder(selectedOrder.id, {
-                          processingDateTime: (selectedOrder as any).processingDateTime || null
-                        });
-                        fetchOrders();
-                        setToast({ show: true, message: 'Processing date/time updated!', type: 'success' });
-                      } catch (error) {
-                        setToast({ show: true, message: 'Failed to update processing date/time', type: 'error' });
-                      }
-                    }}
-                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
-                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={(selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime) : new Date();
+                        const [year, month, day] = e.target.value.split('-');
+                        currentDateTime.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                        setSelectedOrder({ ...selectedOrder, processingDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            processingDateTime: (selectedOrder as any).processingDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Processing date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update processing date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                    />
+                    <input
+                      type="time"
+                      value={(selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime).toTimeString().slice(0, 5) : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime) : new Date();
+                        const [hours, minutes] = e.target.value.split(':');
+                        currentDateTime.setHours(parseInt(hours), parseInt(minutes));
+                        setSelectedOrder({ ...selectedOrder, processingDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            processingDateTime: (selectedOrder as any).processingDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Processing date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update processing date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                    />
+                  </div>
+                  {(selectedOrder as any).processingDateTime && (
+                    <p className="text-xs text-purple-700 mt-2 font-semibold">
+                      📅 {new Date((selectedOrder as any).processingDateTime).toLocaleString('en-IN', { 
+                        dateStyle: 'medium', 
+                        timeStyle: 'short',
+                        hour12: true 
+                      })}
+                    </p>
+                  )}
                 </div>
                 <p className="text-xs text-gray-600 mt-2">
                   💡 These details will be visible to customers in their order tracking
@@ -586,25 +622,61 @@ export default function Orders() {
                   <label className="block text-sm text-gray-700 font-semibold mb-2">
                     🚀 Dispatch Date & Time
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={(selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => {
-                      setSelectedOrder({ ...selectedOrder, dispatchDateTime: e.target.value } as any);
-                    }}
-                    onBlur={async () => {
-                      try {
-                        await apiService.updateOrder(selectedOrder.id, {
-                          dispatchDateTime: (selectedOrder as any).dispatchDateTime || null
-                        });
-                        fetchOrders();
-                        setToast({ show: true, message: 'Dispatch date/time updated!', type: 'success' });
-                      } catch (error) {
-                        setToast({ show: true, message: 'Failed to update dispatch date/time', type: 'error' });
-                      }
-                    }}
-                    className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
-                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={(selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime) : new Date();
+                        const [year, month, day] = e.target.value.split('-');
+                        currentDateTime.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                        setSelectedOrder({ ...selectedOrder, dispatchDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            dispatchDateTime: (selectedOrder as any).dispatchDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Dispatch date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update dispatch date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                    />
+                    <input
+                      type="time"
+                      value={(selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime).toTimeString().slice(0, 5) : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime) : new Date();
+                        const [hours, minutes] = e.target.value.split(':');
+                        currentDateTime.setHours(parseInt(hours), parseInt(minutes));
+                        setSelectedOrder({ ...selectedOrder, dispatchDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            dispatchDateTime: (selectedOrder as any).dispatchDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Dispatch date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update dispatch date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                    />
+                  </div>
+                  {(selectedOrder as any).dispatchDateTime && (
+                    <p className="text-xs text-indigo-700 mt-2 font-semibold">
+                      📅 {new Date((selectedOrder as any).dispatchDateTime).toLocaleString('en-IN', { 
+                        dateStyle: 'medium', 
+                        timeStyle: 'short',
+                        hour12: true 
+                      })}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-600 mt-2">
                     💡 When was this order dispatched/shipped?
                   </p>
@@ -619,25 +691,61 @@ export default function Orders() {
                   <label className="block text-sm text-gray-700 font-semibold mb-2">
                     ✅ Delivered Date & Time
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={(selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => {
-                      setSelectedOrder({ ...selectedOrder, deliveredDateTime: e.target.value } as any);
-                    }}
-                    onBlur={async () => {
-                      try {
-                        await apiService.updateOrder(selectedOrder.id, {
-                          deliveredDateTime: (selectedOrder as any).deliveredDateTime || null
-                        });
-                        fetchOrders();
-                        setToast({ show: true, message: 'Delivered date/time updated!', type: 'success' });
-                      } catch (error) {
-                        setToast({ show: true, message: 'Failed to update delivered date/time', type: 'error' });
-                      }
-                    }}
-                    className="w-full px-4 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
-                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={(selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime) : new Date();
+                        const [year, month, day] = e.target.value.split('-');
+                        currentDateTime.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                        setSelectedOrder({ ...selectedOrder, deliveredDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            deliveredDateTime: (selectedOrder as any).deliveredDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Delivered date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update delivered date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
+                    />
+                    <input
+                      type="time"
+                      value={(selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime).toTimeString().slice(0, 5) : ''}
+                      onChange={(e) => {
+                        const currentDateTime = (selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime) : new Date();
+                        const [hours, minutes] = e.target.value.split(':');
+                        currentDateTime.setHours(parseInt(hours), parseInt(minutes));
+                        setSelectedOrder({ ...selectedOrder, deliveredDateTime: currentDateTime.toISOString() } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            deliveredDateTime: (selectedOrder as any).deliveredDateTime || null
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Delivered date/time updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update delivered date/time', type: 'error' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
+                    />
+                  </div>
+                  {(selectedOrder as any).deliveredDateTime && (
+                    <p className="text-xs text-green-700 mt-2 font-semibold">
+                      📅 {new Date((selectedOrder as any).deliveredDateTime).toLocaleString('en-IN', { 
+                        dateStyle: 'medium', 
+                        timeStyle: 'short',
+                        hour12: true 
+                      })}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-600 mt-2">
                     💡 When was this order delivered to customer?
                   </p>
