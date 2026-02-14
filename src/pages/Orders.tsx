@@ -392,109 +392,6 @@ export default function Orders() {
               </select>
             </div>
 
-            {/* Customer Information */}
-            <div className="border-t border-gray-200 pt-4">
-              <h4 className="font-bold text-gray-900 mb-3">Customer Information</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Name</p>
-                  <p className="font-semibold text-gray-900">{selectedOrder.customer}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-semibold text-gray-900">{selectedOrder.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-semibold text-gray-900">{selectedOrder.phone}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">City</p>
-                  <p className="font-semibold text-gray-900">{selectedOrder.city}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            {selectedOrder.items && selectedOrder.items.length > 0 && (
-              <div className="border-t border-gray-200 pt-4">
-                <h4 className="font-bold text-gray-900 mb-4">Order Items</h4>
-                <div className="space-y-3">
-                  {selectedOrder.items.map((item: any, idx: number) => (
-                    <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition">
-                      <div className="flex gap-4">
-                        {/* Product Image */}
-                        {item.image && (
-                          <div className="w-20 h-20 bg-white rounded-lg border border-gray-300 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-                        )}
-                        
-                        {/* Product Details */}
-                        <div className="flex-1">
-                          <p className="font-bold text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-600 mt-1">Variant: <span className="font-semibold text-gray-900">{item.variant || 'Default'}</span></p>
-                          <p className="text-sm text-gray-600">Quantity: <span className="font-semibold text-gray-900">{item.quantity}</span></p>
-                          <div className="flex gap-4 mt-2">
-                            <p className="text-sm text-gray-600">Unit Price: <span className="font-bold text-blue-600">₹{item.price ? item.price.toLocaleString('en-IN') : '0'}</span></p>
-                            <p className="text-sm text-gray-600">Total: <span className="font-bold text-blue-700">₹{item.price && item.quantity ? (item.price * item.quantity).toLocaleString('en-IN') : '0'}</span></p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Delivery Address */}
-            <div className="border-t border-gray-200 pt-4">
-              <h4 className="font-bold text-gray-900 mb-3">Delivery Address</h4>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-900 font-semibold">{selectedOrder.address}</p>
-                <p className="text-gray-700 mt-1">{selectedOrder.city}, {selectedOrder.state} {selectedOrder.pincode}</p>
-              </div>
-            </div>
-
-            {/* Shipping Charges - Admin can add manually */}
-            <div className="border-t border-gray-200 pt-4">
-              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                <label className="block text-sm text-gray-700 font-semibold mb-2">
-                  Shipping Charges (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={(selectedOrder as any).shippingCharges || 0}
-                  onChange={(e) => {
-                    const charges = parseFloat(e.target.value) || 0;
-                    setSelectedOrder({ ...selectedOrder, shippingCharges: charges } as any);
-                  }}
-                  onBlur={async () => {
-                    // Save shipping charges to backend
-                    try {
-                      await apiService.updateOrder(selectedOrder.id, {
-                        shippingCharges: (selectedOrder as any).shippingCharges || 0
-                      });
-                      fetchOrders();
-                      setToast({ show: true, message: 'Shipping charges updated!', type: 'success' });
-                    } catch (error) {
-                      setToast({ show: true, message: 'Failed to update shipping charges', type: 'error' });
-                    }
-                  }}
-                  className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold text-lg"
-                  placeholder="Enter shipping charges"
-                />
-                <p className="text-xs text-gray-600 mt-2">
-                  💡 Based on customer address, add appropriate shipping charges
-                </p>
-              </div>
-            </div>
-
             {/* Delivery Date and Courier Partner - For Processing Orders */}
             {selectedOrder.status === 'processing' && (
               <div className="border-t border-gray-200 pt-4">
@@ -644,6 +541,109 @@ export default function Orders() {
                 </div>
               </div>
             )}
+
+            {/* Customer Information */}
+            <div className="border-t border-gray-200 pt-4">
+              <h4 className="font-bold text-gray-900 mb-3">Customer Information</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Name</p>
+                  <p className="font-semibold text-gray-900">{selectedOrder.customer}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Email</p>
+                  <p className="font-semibold text-gray-900">{selectedOrder.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Phone</p>
+                  <p className="font-semibold text-gray-900">{selectedOrder.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">City</p>
+                  <p className="font-semibold text-gray-900">{selectedOrder.city}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Items */}
+            {selectedOrder.items && selectedOrder.items.length > 0 && (
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="font-bold text-gray-900 mb-4">Order Items</h4>
+                <div className="space-y-3">
+                  {selectedOrder.items.map((item: any, idx: number) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition">
+                      <div className="flex gap-4">
+                        {/* Product Image */}
+                        {item.image && (
+                          <div className="w-20 h-20 bg-white rounded-lg border border-gray-300 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Product Details */}
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-600 mt-1">Variant: <span className="font-semibold text-gray-900">{item.variant || 'Default'}</span></p>
+                          <p className="text-sm text-gray-600">Quantity: <span className="font-semibold text-gray-900">{item.quantity}</span></p>
+                          <div className="flex gap-4 mt-2">
+                            <p className="text-sm text-gray-600">Unit Price: <span className="font-bold text-blue-600">₹{item.price ? item.price.toLocaleString('en-IN') : '0'}</span></p>
+                            <p className="text-sm text-gray-600">Total: <span className="font-bold text-blue-700">₹{item.price && item.quantity ? (item.price * item.quantity).toLocaleString('en-IN') : '0'}</span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Delivery Address */}
+            <div className="border-t border-gray-200 pt-4">
+              <h4 className="font-bold text-gray-900 mb-3">Delivery Address</h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-900 font-semibold">{selectedOrder.address}</p>
+                <p className="text-gray-700 mt-1">{selectedOrder.city}, {selectedOrder.state} {selectedOrder.pincode}</p>
+              </div>
+            </div>
+
+            {/* Shipping Charges - Admin can add manually */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <label className="block text-sm text-gray-700 font-semibold mb-2">
+                  Shipping Charges (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={(selectedOrder as any).shippingCharges || 0}
+                  onChange={(e) => {
+                    const charges = parseFloat(e.target.value) || 0;
+                    setSelectedOrder({ ...selectedOrder, shippingCharges: charges } as any);
+                  }}
+                  onBlur={async () => {
+                    // Save shipping charges to backend
+                    try {
+                      await apiService.updateOrder(selectedOrder.id, {
+                        shippingCharges: (selectedOrder as any).shippingCharges || 0
+                      });
+                      fetchOrders();
+                      setToast({ show: true, message: 'Shipping charges updated!', type: 'success' });
+                    } catch (error) {
+                      setToast({ show: true, message: 'Failed to update shipping charges', type: 'error' });
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold text-lg"
+                  placeholder="Enter shipping charges"
+                />
+                <p className="text-xs text-gray-600 mt-2">
+                  💡 Based on customer address, add appropriate shipping charges
+                </p>
+              </div>
+            </div>
 
             {/* Order Amount */}
             <div className="border-t border-gray-200 pt-4">
