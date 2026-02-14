@@ -495,6 +495,66 @@ export default function Orders() {
               </div>
             </div>
 
+            {/* Delivery Date and Courier Partner - For Processing Orders */}
+            {selectedOrder.status === 'processing' && (
+              <div className="border-t border-gray-200 pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <label className="block text-sm text-gray-700 font-semibold mb-2">
+                      📅 Expected Delivery Date
+                    </label>
+                    <input
+                      type="date"
+                      value={(selectedOrder as any).deliveryDate || ''}
+                      onChange={(e) => {
+                        setSelectedOrder({ ...selectedOrder, deliveryDate: e.target.value } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            deliveryDate: (selectedOrder as any).deliveryDate || ''
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Delivery date updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update delivery date', type: 'error' });
+                        }
+                      }}
+                      className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
+                    />
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <label className="block text-sm text-gray-700 font-semibold mb-2">
+                      🚚 Courier Partner
+                    </label>
+                    <input
+                      type="text"
+                      value={(selectedOrder as any).courierPartner || ''}
+                      onChange={(e) => {
+                        setSelectedOrder({ ...selectedOrder, courierPartner: e.target.value } as any);
+                      }}
+                      onBlur={async () => {
+                        try {
+                          await apiService.updateOrder(selectedOrder.id, {
+                            courierPartner: (selectedOrder as any).courierPartner || ''
+                          });
+                          fetchOrders();
+                          setToast({ show: true, message: 'Courier partner updated!', type: 'success' });
+                        } catch (error) {
+                          setToast({ show: true, message: 'Failed to update courier partner', type: 'error' });
+                        }
+                      }}
+                      className="w-full px-4 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
+                      placeholder="e.g., Delhivery, BlueDart"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  💡 These details will be visible to customers in their order tracking
+                </p>
+              </div>
+            )}
+
             {/* Order Amount */}
             <div className="border-t border-gray-200 pt-4">
               <div className="space-y-3">
