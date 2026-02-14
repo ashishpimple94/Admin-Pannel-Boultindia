@@ -498,7 +498,7 @@ export default function Orders() {
             {/* Delivery Date and Courier Partner - For Processing Orders */}
             {selectedOrder.status === 'processing' && (
               <div className="border-t border-gray-200 pt-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <label className="block text-sm text-gray-700 font-semibold mb-2">
                       📅 Expected Delivery Date
@@ -549,9 +549,99 @@ export default function Orders() {
                     />
                   </div>
                 </div>
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <label className="block text-sm text-gray-700 font-semibold mb-2">
+                    ⏰ Processing Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={(selectedOrder as any).processingDateTime ? new Date((selectedOrder as any).processingDateTime).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => {
+                      setSelectedOrder({ ...selectedOrder, processingDateTime: e.target.value } as any);
+                    }}
+                    onBlur={async () => {
+                      try {
+                        await apiService.updateOrder(selectedOrder.id, {
+                          processingDateTime: (selectedOrder as any).processingDateTime || null
+                        });
+                        fetchOrders();
+                        setToast({ show: true, message: 'Processing date/time updated!', type: 'success' });
+                      } catch (error) {
+                        setToast({ show: true, message: 'Failed to update processing date/time', type: 'error' });
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
                 <p className="text-xs text-gray-600 mt-2">
                   💡 These details will be visible to customers in their order tracking
                 </p>
+              </div>
+            )}
+
+            {/* Dispatch Date & Time - For Shipped Orders */}
+            {selectedOrder.status === 'shipped' && (
+              <div className="border-t border-gray-200 pt-4">
+                <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                  <label className="block text-sm text-gray-700 font-semibold mb-2">
+                    🚀 Dispatch Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={(selectedOrder as any).dispatchDateTime ? new Date((selectedOrder as any).dispatchDateTime).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => {
+                      setSelectedOrder({ ...selectedOrder, dispatchDateTime: e.target.value } as any);
+                    }}
+                    onBlur={async () => {
+                      try {
+                        await apiService.updateOrder(selectedOrder.id, {
+                          dispatchDateTime: (selectedOrder as any).dispatchDateTime || null
+                        });
+                        fetchOrders();
+                        setToast({ show: true, message: 'Dispatch date/time updated!', type: 'success' });
+                      } catch (error) {
+                        setToast({ show: true, message: 'Failed to update dispatch date/time', type: 'error' });
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  />
+                  <p className="text-xs text-gray-600 mt-2">
+                    💡 When was this order dispatched/shipped?
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Delivered Date & Time - For Delivered Orders */}
+            {selectedOrder.status === 'delivered' && (
+              <div className="border-t border-gray-200 pt-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <label className="block text-sm text-gray-700 font-semibold mb-2">
+                    ✅ Delivered Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={(selectedOrder as any).deliveredDateTime ? new Date((selectedOrder as any).deliveredDateTime).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => {
+                      setSelectedOrder({ ...selectedOrder, deliveredDateTime: e.target.value } as any);
+                    }}
+                    onBlur={async () => {
+                      try {
+                        await apiService.updateOrder(selectedOrder.id, {
+                          deliveredDateTime: (selectedOrder as any).deliveredDateTime || null
+                        });
+                        fetchOrders();
+                        setToast({ show: true, message: 'Delivered date/time updated!', type: 'success' });
+                      } catch (error) {
+                        setToast({ show: true, message: 'Failed to update delivered date/time', type: 'error' });
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
+                  />
+                  <p className="text-xs text-gray-600 mt-2">
+                    💡 When was this order delivered to customer?
+                  </p>
+                </div>
               </div>
             )}
 
