@@ -601,15 +601,6 @@ export default function Orders() {
               </div>
             )}
 
-            {/* Delivery Address */}
-            <div className="border-t border-gray-200 pt-4">
-              <h4 className="font-bold text-gray-900 mb-3">Delivery Address</h4>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-900 font-semibold">{selectedOrder.address}</p>
-                <p className="text-gray-700 mt-1">{selectedOrder.city}, {selectedOrder.state} {selectedOrder.pincode}</p>
-              </div>
-            </div>
-
             {/* Shipping Charges - Admin can add manually */}
             <div className="border-t border-gray-200 pt-4">
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
@@ -642,6 +633,15 @@ export default function Orders() {
                 <p className="text-xs text-gray-600 mt-2">
                   💡 Based on customer address, add appropriate shipping charges
                 </p>
+              </div>
+            </div>
+
+            {/* Delivery Address */}
+            <div className="border-t border-gray-200 pt-4">
+              <h4 className="font-bold text-gray-900 mb-3">Delivery Address</h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-900 font-semibold">{selectedOrder.address}</p>
+                <p className="text-gray-700 mt-1">{selectedOrder.city}, {selectedOrder.state} {selectedOrder.pincode}</p>
               </div>
             </div>
 
