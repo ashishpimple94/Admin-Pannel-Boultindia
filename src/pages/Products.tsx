@@ -19,6 +19,8 @@ interface Product {
   featured: boolean;
   onSale: boolean;
   variants?: Array<{ name: string; price: number }>;
+  directions?: string[];
+  benefits?: string[];
 }
 
 export default function Products() {
@@ -375,6 +377,18 @@ export default function Products() {
                       if (product.variants) {
                         setPacks(product.variants);
                       }
+                      // Load directions and benefits
+                      if ((product as any).directions && (product as any).directions.length > 0) {
+                        setDirections((product as any).directions);
+                      } else {
+                        setDirections(['']);
+                      }
+                      if ((product as any).benefits && (product as any).benefits.length > 0) {
+                        setBenefits((product as any).benefits);
+                      } else {
+                        setBenefits(['']);
+                      }
+                      setImagePreview(product.image);
                       setShowAddForm(true);
                     }}
                     className="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded text-sm hover:bg-blue-100 flex items-center justify-center gap-1"
