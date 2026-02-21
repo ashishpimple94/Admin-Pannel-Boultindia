@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
@@ -143,18 +144,20 @@ function AdminDashboard() {
 
 function App() {
   return (
-    <AdminAuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<AdminLogin />} />
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </Router>
-    </AdminAuthProvider>
+    <ErrorBoundary>
+      <AdminAuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/*" element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </Router>
+      </AdminAuthProvider>
+    </ErrorBoundary>
   );
 }
 
